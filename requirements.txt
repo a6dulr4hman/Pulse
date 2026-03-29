@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+google-generativeai
+reportlab
+httpx
+jinja2
+python-multipartpython-dotenv
+bcrypt
+itsdangerous
+apscheduler

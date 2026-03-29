@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .mask-radial-gradient {
+        mask-image: radial-gradient(circle, black 30%, transparent 70%);
+        -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
+    }
+</style>
+
+<div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-5 relative z-10">
+    <div>
+        <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-3xl font-semibold tracking-tight text-zinc-100">Team Workspace</h1>
+            <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">{{ team.name }}</span>
+        </div>
+        <p class="text-sm text-zinc-400">Monitoring real-time webhook events and architectural integrity.</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <form action="/demo/simulate/{{ team.id }}" method="POST">
+            <button type="submit" class="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-zinc-100 font-medium rounded-md px-4 py-2.5 transition-all text-sm shadow-sm group">
+                <svg class="w-4 h-4 text-zinc-500 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                Simulate Conflict
+            </button>
+        </form>
+        
+        <form action="/leader/trigger_report" method="POST">
+            <button type="submit" class="flex items-center gap-2 bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2.5 transition-all text-sm shadow-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Trigger AI Sync
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 mb-6">
+    
+    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm flex flex-col h-[600px]">
+        <h2 class="text-sm font-semibold mb-6 text-zinc-200 uppercase tracking-widest border-b border-zinc-800/60 pb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+            Activity Stream
+        </h2>
+        
+        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-5">
+            {% if logs %}
+                {% for log in logs %}
+                <div class="relative pl-5 border-l border-zinc-800/60 pb-5 last:pb-0 group">
+                    <div class="absolute w-2 h-2 bg-zinc-700 rounded-full -left-[4.5px] top-1.5 group-hover:bg-zinc-300 group-hover:shadow-[0_0_8px_rgba(212,212,216,0.8)] transition-all"></div>
+                    <div class="flex items-baseline justify-between gap-2 mb-1.5">
+                        <span class="text-sm font-medium text-zinc-200">{{ log.developer_name }}</span>
+                        <span class="text-[10px] text-zinc-500 font-mono">{{ log.timestamp.strftime('%H:%M:%S') }}</span>
+                    </div>
+                    <p class="text-xs text-zinc-400 leading-relaxed">{{ log.raw_data }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="flex flex-col items-center justify-center h-full text-center space-y-3 opacity-50">
+                    <svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03-8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <p class="text-xs text-zinc-400">Listening for webhooks...</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="lg:col-span-2 flex flex-col gap-6">
+        
+        <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm relative overflow-hidden h-[340px] flex flex-col">
+            <div class="flex justify-between items-center mb-4 relative z-20">
+                <h2 class="text-sm font-semibold text-zinc-200 uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"></path></svg>
+                    Live Dependency Radar
+                </h2>
+                
+                {% if conflicts|length > 0 %}
+                    <div class="flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.15)]">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <span class="text-[11px] uppercase tracking-wider font-semibold text-red-400">Blocker Detected</span>
+                    </div>
+                {% else %}
+                    <div class="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                        <span class="relative flex h-2 w-2">
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                        </span>
+                        <span class="text-[11px] uppercase tracking-wider font-semibold text-emerald-400">Systems Aligned</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="flex-1 relative flex items-center justify-center mt-2">
+                <div class="absolute inset-0 bg-grid opacity-20 mask-radial-gradient"></div>
+                <div class="absolute w-[300px] h-[300px] border border-zinc-800/40 rounded-full"></div>
+                <div class="absolute w-[200px] h-[200px] border border-zinc-800/60 rounded-full"></div>
+                <div class="absolute w-[100px] h-[100px] border border-zinc-700/80 rounded-full"></div>
+                <div class="absolute w-full h-[1px] bg-zinc-800/60"></div>
+                <div class="absolute h-full w-[1px] bg-zinc-800/60"></div>
+
+                {% if conflicts|length > 0 %}
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-14 h-14 bg-black border border-red-500/50 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.3)] mb-3 relative">
+                            <div class="absolute inset-0 rounded-full border border-red-500/70 animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+                            <svg class="w-6 h-6 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,1)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <p class="text-xs text-red-400 font-semibold tracking-wide uppercase">Collision</p>
+                    </div>
+                {% else %}
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-14 h-14 bg-black border border-emerald-500/30 rounded-full flex items-center justify-center mb-3">
+                            <svg class="w-5 h-5 text-emerald-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <p class="text-xs text-emerald-500/70 font-semibold tracking-wide uppercase">Monitoring</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if conflicts|length > 0 %}
+        <div class="bg-[#120a0a] border border-red-900/40 rounded-xl p-6 shadow-sm flex-1">
+            <h2 class="text-sm font-semibold text-red-400 mb-5 uppercase tracking-widest border-b border-red-900/30 pb-3 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Architectural Risks
+            </h2>
+            
+            <div class="space-y-3">
+                {% for conflict in conflicts %}
+                <div class="bg-[#0a0a0a] border border-red-900/40 rounded-lg p-4 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="relative z-10 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <p class="text-sm text-zinc-300 leading-relaxed flex-1">{{ conflict.description }}</p>
+                        <form action="/leader/conflict/resolve/{{ conflict.id }}" method="post" class="shrink-0">
+                            <button type="submit" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs font-medium px-4 py-2 rounded-md transition-all shadow-sm">
+                                Mark Resolved
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
+    
+    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
+        <h2 class="text-sm font-semibold mb-5 text-zinc-200 uppercase tracking-widest border-b border-zinc-800/60 pb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            System Integrations
+        </h2>
+        
+        <div class="space-y-6">
+            <div class="bg-black border border-zinc-800/60 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <svg class="w-4 h-4 text-zinc-300" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                    <h3 class="text-sm font-medium text-zinc-200">GitHub Configuration</h3>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Payload URL</label>
+                        <div class="flex items-center bg-[#0a0a0a] border border-zinc-800 rounded-md p-1 pl-3">
+                            <code id="github-url" class="text-xs text-zinc-300 font-mono flex-1 select-all truncate">Loading...</code>
+                            <button onclick="copyData('github-url', this)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded text-xs transition-colors ml-2 w-16 text-center">Copy</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Webhook Secret</label>
+                        <div class="flex items-center bg-[#0a0a0a] border border-zinc-800 rounded-md p-1 pl-3">
+                            <code id="github-secret" class="text-xs text-zinc-500 font-mono flex-1 select-all truncate">{{ team.github_secret if team.github_secret else 'pulse_gh_' ~ (team.id|string)[:8] }}</code>
+                            <button onclick="copyData('github-secret', this)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded text-xs transition-colors ml-2 w-16 text-center">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-black border border-zinc-800/60 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M11.53 2c0 2.4-1.97 4.35-4.35 4.35h-4.6C1.18 6.35 0 7.53 0 8.93v4.6c0 2.4 1.97 4.35 4.35 4.35h4.6c1.4 0 2.58-1.18 2.58-2.58v-4.6C11.53 8.3 9.56 6.35 7.18 6.35h-4.6C1.18 6.35 0 5.17 0 3.77V0h4.6c2.4 0 4.35 1.97 4.35 4.35v-2.35zM24 14.47c0-2.4-1.97-4.35-4.35-4.35h-4.6c-1.4 0-2.58 1.18-2.58 2.58v4.6c0 2.4 1.97 4.35 4.35 4.35h4.6c1.4 0 2.58-1.18 2.58-2.58v-4.6c0-2.4 1.97-4.35 4.35-4.35h-4.6C16.82 10.12 18 8.94 18 7.54v-4.6c0-2.4-1.97-4.35-4.35-4.35h-4.6c-1.4 0-2.58 1.18-2.58 2.58v4.6c0 2.4 1.97 4.35 4.35 4.35h4.6C19.65 10.12 24 12.09 24 14.47zM11.53 14.47c0 2.4-1.97 4.35-4.35 4.35h-4.6C1.18 18.82 0 19.99 0 21.39V24h4.6c2.4 0 4.35-1.97 4.35-4.35v-4.6c0-2.4 1.97-4.35 4.35-4.35h4.6c1.4 0 2.58-1.18 2.58-2.58v4.6z"/></svg>
+                        <h3 class="text-sm font-medium text-zinc-200">Jira Configuration</h3>
+                    </div>
+                    {% if not team.jira_connection %}
+                    <form action="/leader/jira/setup" method="POST">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider transition-colors shadow-sm">Generate Config</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% if team.jira_connection %}
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Payload URL</label>
+                        <div class="flex items-center bg-[#0a0a0a] border border-zinc-800 rounded-md p-1 pl-3">
+                            <code id="jira-url" class="text-xs text-zinc-300 font-mono flex-1 select-all truncate">Loading...</code>
+                            <button onclick="copyData('jira-url', this)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded text-xs transition-colors ml-2 w-16 text-center">Copy</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Webhook Secret</label>
+                        <div class="flex items-center bg-[#0a0a0a] border border-zinc-800 rounded-md p-1 pl-3">
+                            <code id="jira-secret" class="text-xs text-zinc-500 font-mono flex-1 select-all truncate">{{ team.jira_connection }}</code>
+                            <button onclick="copyData('jira-secret', this)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded text-xs transition-colors ml-2 w-16 text-center">Copy</button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-xs text-zinc-500 leading-relaxed mt-2 pt-2 border-t border-zinc-800/60">Bind your Atlassian Jira workspace to Pulse AI. Generating a config will create a highly secure webhook address to capture workflow stage changes natively.</p>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-col gap-3 bg-black border border-zinc-800/60 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-medium text-zinc-200 mb-1">Discord Alert Channel</h3>
+                        {% if team.discord_webhook %}
+                        <p class="text-[10px] text-emerald-500/70 font-mono">Connected & Active</p>
+                        {% else %}
+                        <p class="text-[10px] text-zinc-500 font-mono">Not configured</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <form action="/leader/discord/update" method="POST" class="flex gap-2">
+                    <input type="url" name="discord_webhook" value="{{ team.discord_webhook or '' }}" placeholder="https://discord.com/api/webhooks/..." required class="bg-[#0a0a0a] border border-zinc-800 rounded-md px-2 py-1 text-xs text-zinc-100 flex-1 focus:outline-none focus:border-zinc-500 transition-all">
+                    <button type="submit" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded text-xs transition-colors shrink-0">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm flex flex-col h-[520px]">
+        <div class="flex justify-between items-center mb-5 border-b border-zinc-800/60 pb-4">
+            <h2 class="text-sm font-semibold text-zinc-200 uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Team Access
+            </h2>
+            <span class="text-xs font-mono text-zinc-500">{{ team_members|length if team_members else 0 }} Members</span>
+        </div>
+        
+        <form action="/leader/team/add_member" method="POST" class="flex gap-2 mb-5">
+            <input type="text" name="github_handle" placeholder="GitHub Username or Email" required class="flex-1 bg-black border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-all">
+            <button type="submit" class="bg-zinc-100 hover:bg-zinc-300 text-black font-medium rounded-md px-5 py-2.5 transition-colors text-sm">Add</button>
+        </form>
+        
+        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <ul class="space-y-2">
+                {% if team_members %}
+                    {% for member in team_members %}
+                    <li class="flex items-center justify-between bg-black border border-zinc-800/60 hover:border-zinc-700 rounded-md p-3 transition-colors group">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs font-medium text-zinc-300 uppercase">
+                                {{ member.username[:2] if member.username else 'U' }}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm text-zinc-200 font-medium leading-none mb-1.5">{{ member.username }}</span>
+                                <span class="text-[10px] text-zinc-500 uppercase tracking-wider">{{ member.role }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if member.id != user.id %}
+                        <form action="/leader/team/remove_member/{{ member.id }}" method="POST" onsubmit="return confirm('Are you sure you want to remove {{ member.username }} from this team?');" class="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button type="submit" class="text-zinc-500 hover:text-red-400 p-1.5 rounded hover:bg-red-400/10 transition-colors" title="Remove Member">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-[10px] font-medium text-zinc-600 px-2">YOU</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-8">
+                        <p class="text-xs text-zinc-500">No members added yet.</p>
+                    </div>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Build and inject the webhook URLs dynamically
+    document.addEventListener("DOMContentLoaded", () => {
+        const teamId = "{{ team.id }}";
+        const ghUrlNode = document.getElementById("github-url");
+        const jiraUrlNode = document.getElementById("jira-url");
+        
+        if(teamId) {
+            if(ghUrlNode) ghUrlNode.innerText = window.location.origin + "/webhook/" + teamId + "/github";
+            if(jiraUrlNode) jiraUrlNode.innerText = window.location.origin + "/webhook/" + teamId + "/jira";
+        }
+    });
+
+    // Universal copy to clipboard function
+    function copyData(elementId, btnElement) {
+        const textToCopy = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "Copied!";
+            btnElement.classList.add("text-emerald-400", "border-emerald-500/30", "bg-emerald-500/10");
+            btnElement.classList.remove("text-zinc-400", "bg-zinc-900", "border-zinc-800");
+            
+            setTimeout(() => {
+                btnElement.innerText = originalText;
+                btnElement.classList.remove("text-emerald-400", "border-emerald-500/30", "bg-emerald-500/10");
+                btnElement.classList.add("text-zinc-400", "bg-zinc-900", "border-zinc-800");
+            }, 2000);
+        });
+    }
+
+    // Refresh page every 5 seconds for live demo updates (optional, remove for production)
+    setTimeout(() => {
+        window.location.reload();
+    }, 5000);
+</script>
+{% endblock %}

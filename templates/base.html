@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse AI</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        background: '#000000', // Deep black
+                        surface: '#0a0a0a',   // Slightly elevated black
+                        border: '#27272a',    // Zinc-800 for crisp, thin borders
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for a premium feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        
+        /* Extremely subtle background mesh/grid */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background text-zinc-300 font-sans antialiased min-h-screen bg-grid selection:bg-zinc-800 selection:text-zinc-50">
+    
+    <nav class="sticky top-0 z-50 border-b border-border bg-black/60 backdrop-blur-xl supports-[backdrop-filter]:bg-black/40">
+        <div class="max-w-[1200px] mx-auto px-6 h-14 flex justify-between items-center">
+            
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2 group">
+                    <img src="/static/favicon.svg" alt="Pulse AI Logo" class="w-6 h-6 rounded-md shadow-sm group-hover:shadow-zinc-500/20 transition-all object-contain">
+                    <span class="text-sm font-semibold tracking-tight text-zinc-100">Pulse</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-white/5 text-[10px] font-medium text-zinc-400 border border-white/10 ml-1 tracking-wide">ENTERPRISE</span>
+                </a>
+            </div>
+
+            {% if not hide_nav %}
+            <div class="flex items-center gap-2 no-print">
+                {% if user %}
+                <a href="/settings" class="text-sm font-medium text-zinc-400 hover:text-zinc-100 px-3 py-1.5 rounded-md hover:bg-zinc-900 transition-colors">Settings</a>
+                {% endif %}
+                <a href="/logout" class="text-sm font-medium text-zinc-400 hover:text-zinc-100 px-3 py-1.5 rounded-md hover:bg-zinc-900 transition-colors">Logout</a>
+            </div>
+            {% endif %}
+            
+        </div>
+    </nav>
+
+    <main class="max-w-[1200px] mx-auto px-6 py-10">
+        {% block content %}{% endblock %}
+    </main>
+    
+</body>
+</html>

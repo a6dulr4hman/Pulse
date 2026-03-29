@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col items-center justify-center relative">
+    
+    <div class="absolute w-[500px] h-[500px] bg-zinc-500/10 rounded-full blur-[120px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+    <div class="w-full max-w-[400px] bg-[#0a0a0a]/80 backdrop-blur-2xl border border-zinc-800/80 p-8 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative z-10">
+        
+        <div class="flex flex-col items-center mb-8">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-200 to-zinc-500 flex items-center justify-center text-black shadow-lg mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-semibold tracking-tight text-zinc-100">Sign in to Pulse</h1>
+            <p class="text-sm text-zinc-400 mt-1.5 text-center">Enter your workspace credentials to access the dependency radar.</p>
+        </div>
+
+        {% if error %}
+        <div class="mb-5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-3 py-2 rounded-md flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+        
+        {% if success %}
+        <div class="mb-5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs px-3 py-2 rounded-md flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span>{{ success }}</span>
+        </div>
+        {% endif %}
+
+        <form action="/login" method="POST" class="space-y-4">
+            <div class="space-y-1.5">
+                <label for="username" class="block text-xs font-medium text-zinc-400">Username or Email</label>
+                <input type="text" id="username" name="username" placeholder="name@company.com" required 
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all">
+            </div>
+            
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label for="password" class="block text-xs font-medium text-zinc-400">Password</label>
+                </div>
+                <input type="password" id="password" name="password" placeholder="••••••••" required 
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono">
+            </div>
+            
+            <button type="submit" 
+                class="w-full bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2.5 mt-2 transition-colors text-sm shadow-lg flex justify-center items-center gap-2">
+                Continue
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </form>
+
+        <div class="mt-8 pt-5 border-t border-zinc-800/60 text-center">
+            <p class="text-[11px] text-zinc-500">
+                Don't have an account? <br>
+                <span class="text-zinc-400">Contact your workspace administrator to be provisioned.</span>
+            </p>
+        </div>
+    </div>
+    
+    <div class="absolute bottom-4 text-[10px] text-zinc-600 font-mono tracking-widest uppercase">
+        Pulse Enterprise Infrastructure
+    </div>
+</div>
+{% endblock %}
