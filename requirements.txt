@@ -5,7 +5,8 @@ google-generativeai
 reportlab
 httpx
 jinja2
-python-multipartpython-dotenv
+python-multipart
+python-dotenv
 bcrypt
 itsdangerous
 apscheduler

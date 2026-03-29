@@ -286,10 +286,11 @@
         const teamId = "{{ team.id }}";
         const ghUrlNode = document.getElementById("github-url");
         const jiraUrlNode = document.getElementById("jira-url");
+        const jiraSecret = "{{ team.jira_connection }}";
         
         if(teamId) {
-            if(ghUrlNode) ghUrlNode.innerText = window.location.origin + "/webhook/" + teamId + "/github";
-            if(jiraUrlNode) jiraUrlNode.innerText = window.location.origin + "/webhook/" + teamId + "/jira";
+            if(ghUrlNode) ghUrlNode.innerText = window.location.origin + "/webhook/github/" + teamId;
+            if(jiraUrlNode && jiraSecret) jiraUrlNode.innerText = window.location.origin + "/webhook/jira/" + teamId + "/" + jiraSecret;
         }
     });
 

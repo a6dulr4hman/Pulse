@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException, BackgroundTa
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from passlib.context import CryptContext
+import bcrypt
 from starlette.middleware.sessions import SessionMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -28,11 +28,11 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Pulse AI - Auto Tech Lead")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get('/favicon.ico', include_in_schema=False)
+@app.get('/favicon.svg', include_in_schema=False)
 async def favicon():
-    return FileResponse('static/favicon.ico')
+    return FileResponse('static/favicon.svg')
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 templates = Jinja2Templates(directory="templates")
 
 # Configure SessionMiddleware for Login Cookies
@@ -270,7 +270,7 @@ async def setup_post(request: Request, company_name: str = Form(...), gemini_key
         db.flush() 
         logger.info(f"Company {company_name} created successfully.")
         
-        hashed = pwd_context.hash(admin_pass)
+        hashed = bcrypt.hashpw(admin_pass[:72].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         admin = User(username=admin_user, full_name=admin_full_name, password_hash=hashed, role="Admin", company_id=company.id)
         db.add(admin)
         db.commit()
@@ -292,7 +292,8 @@ async def login_get(request: Request, next: str = ""):
 async def login_post(request: Request, username: str = Form(...), password: str = Form(...), next: str = Form(default=""), db: Session = Depends(get_db)):
     logger.info(f"Processing /login POST for username: {username}")
     user = db.query(User).filter(User.username == username).first()
-    if not user or not pwd_context.verify(password, user.password_hash):
+    
+    if not user or not bcrypt.checkpw(password[:72].encode('utf-8'), user.password_hash.encode('utf-8')):
         logger.warning(f"Login failed for username: {username}")
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Invalid credentials", "next": next})
         
@@ -383,7 +384,7 @@ async def create_user(request: Request, username: str = Form(...), full_name: st
          return active_dashboard_redirect(user)
     
     parsed_team_id = int(team_id) if team_id and team_id.isdigit() else None
-    hashed = pwd_context.hash(password)
+    hashed = bcrypt.hashpw(password[:72].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     new_user = User(username=username, full_name=full_name, email=email, password_hash=hashed, role=role, team_id=parsed_team_id)
     db.add(new_user)
     db.commit()
@@ -397,10 +398,10 @@ async def settings_get(request: Request, db: Session = Depends(get_db)):
 @app.post("/settings/password")
 async def settings_password(request: Request, current_password: str = Form(...), new_password: str = Form(...), db: Session = Depends(get_db)):
     user = login_required(request, db)
-    if not pwd_context.verify(current_password, user.password_hash):
+    if not bcrypt.checkpw(current_password[:72].encode('utf-8'), user.password_hash.encode('utf-8')):
         return templates.TemplateResponse(request=request, name="settings.html", context={"user": user, "error": "Incorrect current password."})
     
-    user.password_hash = pwd_context.hash(new_password)
+    user.password_hash = bcrypt.hashpw(new_password[:72].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     db.commit()
     return templates.TemplateResponse(request=request, name="settings.html", context={"user": user, "success": "Password changed successfully."})
 
@@ -457,7 +458,7 @@ async def leader_add_user(request: Request, username: str = Form(...), full_name
         username=username,
         full_name=full_name,
         email=email,
-        password_hash=pwd_context.hash(password),
+        password_hash=bcrypt.hashpw(password[:72].encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
         role="Member",
         team_id=user.team_id
     )
