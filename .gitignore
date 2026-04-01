@@ -16,7 +16,6 @@ ENV/
 
 # Database
 *.db
-pulse.db
 *.sqlite
 *.sqlite3
 

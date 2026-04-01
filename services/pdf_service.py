@@ -5,7 +5,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 import datetime
 
-def generate_morning_pdf(team_name: str, team_id: int, summary: str, logs: list, conflicts: list) -> str:
+def generate_morning_pdf(team_name: str, team_id: int, summary: str, logs: list) -> str:
     date_str = datetime.datetime.now().strftime("%Y-%m-%d")
     
     # Store dynamic reports by team folder logic
@@ -39,13 +39,6 @@ def generate_morning_pdf(team_name: str, team_id: int, summary: str, logs: list,
     elements.append(Paragraph(summary, normal_style))
     elements.append(Spacer(1, 20))
     
-    # Active Conflicts
-    elements.append(Paragraph("Active Architectural Conflicts", heading_style))
-    if conflicts:
-        for c in conflicts:
-            elements.append(Paragraph(f"• {c.description}", normal_style))
-    else:
-        elements.append(Paragraph("No active conflicts detected. All clear!", normal_style))
     elements.append(Spacer(1, 20))
     
     # Recent Activity

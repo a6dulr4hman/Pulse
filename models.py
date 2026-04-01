@@ -14,15 +14,23 @@ class Team(Base):
     __tablename__ = "teams"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    discord_webhook = Column(String, nullable=True)
-    github_secret = Column(String, nullable=True)
-    github_repos = Column(String, nullable=True) # csv of repos
-    jira_connection = Column(String, nullable=True)
+    
+    # Modular Chat Provider
+    chat_provider = Column(String, default="discord")
+    chat_webhook_url = Column(String, nullable=True)
+    
+    # Modular VCS Provider
+    vcs_provider = Column(String, default="github")
+    vcs_secret = Column(String, nullable=True)
+    
+    # Modular PM Provider
+    pm_provider = Column(String, default="jira")
+    pm_secret = Column(String, nullable=True)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
 
     users = relationship("User", back_populates="team")
     activity_logs = relationship("ActivityLog", back_populates="team")
-    conflicts = relationship("Conflict", back_populates="team")
 
 class User(Base):
     __tablename__ = "users"
@@ -33,8 +41,12 @@ class User(Base):
     email = Column(String, index=True, unique=True, nullable=True)
     password_hash = Column(String)
     role = Column(String, default="member") # "admin", "leader", "member"
-    github_username = Column(String, nullable=True)
+    vcs_username = Column(String, nullable=True)
     full_name = Column(String, nullable=True)
+    
+    # 2FA Authentication
+    totp_secret = Column(String, nullable=True)
+    totp_enabled = Column(Boolean, default=False)
 
     team = relationship("Team", back_populates="users")
 
@@ -48,15 +60,6 @@ class ActivityLog(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     team = relationship("Team", back_populates="activity_logs")
 
-class Conflict(Base):
-    __tablename__ = "conflicts"
-    id = Column(Integer, primary_key=True, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"))
-    description = Column(Text)
-    status = Column(String, default="ACTIVE")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    team = relationship("Team", back_populates="conflicts")
-
 class TeamReport(Base):
     __tablename__ = "team_reports"
     id = Column(Integer, primary_key=True, index=True)
@@ -64,3 +67,14 @@ class TeamReport(Base):
     summary = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     team = relationship("Team")
+
+class Passkey(Base):
+    __tablename__ = "passkeys"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    credential_id = Column(String, unique=True, index=True)
+    public_key = Column(String)
+    sign_count = Column(Integer, default=0)
+    name = Column(String, default="Passkey")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    user = relationship("User", backref="passkeys")

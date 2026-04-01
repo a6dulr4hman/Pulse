@@ -7,113 +7,569 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
-    
-    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-semibold mb-5 text-zinc-100 border-b border-zinc-800 pb-3">Active Teams</h2>
+<div class="grid grid-cols-1 gap-6 relative z-10">
+    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm min-h-[450px] flex flex-col">
+        <div class="flex items-center justify-between mb-3 border-b border-zinc-800 pb-3">
+            <h2 class="text-lg font-semibold text-zinc-100">Teams</h2>
+            <div class="flex items-center gap-3">
+                <button onclick="openImportModal()" class="bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700 font-medium rounded-md px-3 py-1.5 transition-colors text-sm flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Import
+                </button>
+                <button onclick="openTeamModal()" class="bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700 font-medium rounded-md px-3 py-1.5 transition-colors text-sm flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    New Team
+                </button>
+                <button onclick="openProvisionModal()" class="bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-3 py-1.5 transition-colors text-sm flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    New Member
+                </button>
+            </div>
+        </div>
+        <div class="mb-3 flex items-center bg-black border border-zinc-800 rounded-md px-2 mt-2">
+            <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" id="teamSearchInput" placeholder="Search teams..." class="w-full bg-transparent border-none text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-0 py-2 px-2">
+        </div>
         
-        <ul class="space-y-3 mb-8">
+        <ul class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {% for team in teams %}
-            <li class="bg-black p-4 rounded-lg border border-zinc-800 hover:border-zinc-700 transition-colors">
-                <div class="flex justify-between items-start">
+            <li class="bg-black py-4 px-5 rounded-lg border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 transition-colors cursor-pointer active-team-item group" onclick="openManageTeamModal('{{ team.id }}')">
+                <div class="flex justify-between items-center">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-zinc-100">{{ team.name }}</span>
+                            <span class="text-base font-medium text-zinc-100">{{ team.name }}</span>
                             <span class="bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400 font-mono">ID: {{ team.id }}</span>
                         </div>
                         <div class="mt-2 space-y-1">
                             <span class="flex items-center gap-1.5 text-xs text-emerald-400/90">
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Discord Webhook Active
+                                Chat System Active
                             </span>
-                            <span class="block text-xs text-zinc-500 font-mono truncate max-w-[200px] sm:max-w-[300px]">Secret: {{ team.github_secret }}</span>
                         </div>
                     </div>
-                    <form action="/admin/team/delete/{{ team.id }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this team and all its data?');">
-                        <button type="submit" class="text-[11px] font-medium text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 border border-red-400/20 px-2.5 py-1.5 rounded-md transition-colors">Delete</button>
-                    </form>
+                    <div class="text-right">
+                        {% set team_users = [] %}
+                        {% for u in users %}
+                            {% if u.team_id == team.id %}
+                                {% set _ = team_users.append(u) %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="text-xs text-zinc-500 mb-2">{{ team_users|length }} Member(s)</div>
+                        <button class="text-[11px] bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 px-3 py-1 rounded transition-colors group-hover:bg-zinc-700 group-hover:text-white">Manage Team</button>
+                    </div>
                 </div>
             </li>
             {% else %}
-                <div class="p-4 border border-dashed border-zinc-800 rounded-lg bg-zinc-900/20 text-center">
+                <div class="p-4 border border-dashed border-zinc-800 rounded-lg bg-zinc-900/20 text-center mt-4">
                     <p class="text-zinc-500 text-sm">No teams have been deployed yet.</p>
                 </div>
             {% endfor %}
         </ul>
+    </div>
 
-        <div class="bg-black border border-zinc-800 rounded-lg p-5">
-            <h3 class="text-sm font-medium text-zinc-200 mb-4">Deploy New Team</h3>
-            <form action="/admin/team" method="POST" class="space-y-3">
-                <input type="text" name="name" placeholder="Team Name" required class="w-full bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all">
-                <input type="url" name="discord_webhook" placeholder="Discord Webhook URL" required class="w-full bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all">
-                <button type="submit" class="w-full bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2 mt-2 transition-colors text-sm">Create Workspace</button>
-            </form>
+    <!-- Modals Go Below Here -->
+    <!-- Import Data Modal -->
+    <div id="importModal" class="opacity-0 pointer-events-none fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+        <div id="importModalContent" class="bg-[#0a0a0a] border border-zinc-800 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden relative transform scale-95 transition-transform duration-300 ease-out" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/30">
+                <h2 class="text-lg font-semibold text-white">Import Data</h2>
+                <button onclick="closeImportModal()" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="text-xs text-zinc-400 mb-4 bg-black p-4 rounded-lg border border-zinc-800 leading-relaxed overflow-auto max-h-56 custom-scrollbar">
+                    <p class="mb-2 font-semibold text-zinc-200">JSON Format ({ "teams": [...] }):</p>
+<pre class="font-mono text-[11px] text-zinc-500 bg-zinc-900/50 p-2 rounded border border-zinc-800/50">
+{
+  "teams": [
+    {
+      "name": "Team Alpha",
+      "chat_provider": "discord",
+      "chat_webhook_url": "https://...",
+      "vcs_provider": "github",
+      "vcs_secret": "mysec",
+      "pm_provider": "jira",
+      "members": [
+        {
+          "username": "jdoe",
+          "email": "jdoe@ext.com",
+          "full_name": "John Doe",
+          "role": "leader",
+          "password": "pass"
+        }
+      ]
+    }
+  ]
+}
+</pre>
+<p class="mt-4 mb-2 font-semibold text-zinc-200">CSV Format (Headers):</p>
+<pre class="font-mono text-[11px] text-zinc-500 bg-zinc-900/50 p-2 rounded border border-zinc-800/50 overflow-x-auto whitespace-nowrap">
+team_name,chat_provider,chat_webhook_url,vcs_provider,vcs_secret,pm_provider,username,email,full_name,role,password
+</pre>
+                </div>
+                
+                <form action="/admin/import" method="post" enctype="multipart/form-data" class="space-y-5">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Upload Data File</label>
+                        <div id="dropZone" class="relative w-full border-2 border-dashed border-zinc-700 bg-black rounded-xl p-8 hover:border-white hover:bg-zinc-900/40 hover:shadow-[0_0_14px_rgba(255,255,255,0.1)] transition-all duration-300 ease-out group cursor-pointer text-center flex flex-col items-center justify-center focus-within:border-white focus-within:-translate-y-[1px] focus-within:shadow-[0_0_14px_rgba(255,255,255,0.2)]">
+                            <input type="file" name="file" id="fileImport" accept=".json,.csv" required 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                   onchange="updateFileName(this)"
+                                   ondragenter="document.getElementById('dropZone').classList.add('border-white', 'bg-zinc-900/40');"
+                                   ondragleave="document.getElementById('dropZone').classList.remove('border-white', 'bg-zinc-900/40');"
+                                   ondrop="document.getElementById('dropZone').classList.remove('border-white', 'bg-zinc-900/40'); updateFileName(this)">
+                            <svg class="w-8 h-8 text-zinc-500 group-hover:text-white transition-colors mb-3 drop-zone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            <p class="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors drop-zone-text"><span class="text-white font-semibold">Click to browse</span> or drag and drop</p>
+                            <p class="text-[11px] text-zinc-500 mt-1 drop-zone-subtext">Accepts .json or .csv only</p>
+                            
+                            <div id="fileNameDisplay" class="mt-3 text-sm text-green-400 font-medium hidden items-center gap-2 bg-green-400/10 px-3 py-1.5 rounded-lg border border-green-400/20">
+                                <svg class="w-4 h-4" inline="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-white text-black font-semibold rounded-lg px-4 py-2 hover:bg-zinc-200 transition-all duration-300 ease-out transform hover:-translate-y-[1px] shadow-sm hover:shadow-[0_0_14px_rgba(255,255,255,0.4)]">
+                        Upload & Import
+                    </button>
+                    
+                    <script>
+                        function updateFileName(input) {
+                            const display = document.getElementById('fileNameDisplay');
+                            const icon = document.querySelector('.drop-zone-icon');
+                            const text = document.querySelector('.drop-zone-text');
+                            const subtext = document.querySelector('.drop-zone-subtext');
+                            
+                            if (input.files && input.files.length > 0) {
+                                display.querySelector('span').textContent = input.files[0].name;
+                                display.classList.remove('hidden');
+                                display.classList.add('flex');
+                                
+                                // Hide the default text
+                                icon.classList.add('hidden');
+                                text.classList.add('hidden');
+                                subtext.classList.add('hidden');
+                            } else {
+                                display.classList.add('hidden');
+                                display.classList.remove('flex');
+                                
+                                icon.classList.remove('hidden');
+                                text.classList.remove('hidden');
+                                subtext.classList.remove('hidden');
+                            }
+                        }
+                    </script>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-semibold mb-5 text-zinc-100 border-b border-zinc-800 pb-3">User Access</h2>
-        
-        <ul class="space-y-2 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-            {% for u in users %}
-            <li class="bg-black p-3 rounded-lg border border-zinc-800 flex justify-between items-center group hover:border-zinc-700 transition-colors">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs text-zinc-400 font-medium uppercase">
-                        {{ u.username[:2] }}
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-zinc-200">{{ u.username }}</span>
-                            <span class="bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">{{ u.role }}</span>
+    <!-- Provision Member Modal -->
+    <div id="provisionModal" class="opacity-0 pointer-events-none fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+        <div id="provisionModalContent" class="bg-[#0a0a0a] border border-zinc-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden relative transform scale-95 transition-transform duration-300 ease-out" onclick="event.stopPropagation()">
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center bg-black/50">
+                <h3 class="text-sm font-medium text-zinc-200 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                    Provision Member
+                </h3>
+                <button onclick="closeProvisionModal()" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-5 bg-black">
+                <form action="/admin/user" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">GitHub Username</label>
+                            <input type="text" name="username" placeholder="johndoe" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono appearance-none cursor-pointer pr-8">
                         </div>
-                        {% if u.team_id %}
-                        <span class="text-xs text-zinc-500">Team {{ u.team_id }}</span>
-                        {% else %}
-                        <span class="text-xs text-yellow-500/70">Unassigned</span>
-                        {% endif %}
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Full Name</label>
+                            <input type="text" name="full_name" placeholder="John Doe" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                        </div>
                     </div>
-                </div>
-                {% if user.id != u.id %}
-                <form action="/admin/user/delete/{{ u.id }}" method="POST" class="inline opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Revoke user access?');">
-                    <button type="submit" class="text-zinc-500 hover:text-red-400 p-1 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Email Address</label>
+                            <input type="email" name="email" placeholder="john@example.com" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Temp Password</label>
+                            <input type="password" name="password" placeholder="••••••••" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono appearance-none cursor-pointer pr-8">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pb-1">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Role</label>
+                            <div class="relative">
+                                <select name="role" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="Leader">Leader</option>
+                                    <option value="Member" selected>Member</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Team Assignment</label>
+                            <div class="relative">
+                                <select name="team_id" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="" disabled selected>Select Team...</option>
+                                    {% for team in teams %}
+                                    <option value="{{ team.id }}">{{ team.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2.5 mt-2 transition-colors text-sm shadow-lg flex justify-center items-center gap-2">
+                        Deploy Account
                     </button>
                 </form>
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-
-        <div class="bg-black border border-zinc-800 rounded-lg p-5">
-            <h3 class="text-sm font-medium text-zinc-200 mb-4">Provision Member</h3>
-            <form action="/admin/user" method="POST" class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="text" name="username" placeholder="GitHub Username" required class="w-full bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all">
-                    <input type="text" name="full_name" placeholder="Full Name" required class="w-full bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="email" name="email" placeholder="Email Address" class="w-full bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all">
-                    <input type="password" name="password" placeholder="Temporary Password" required class="w-full bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <select name="role" required class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all appearance-none">
-                        <option value="Team Leader">Team Leader</option>
-                        <option value="Member" selected>Team Member</option>
-                        <option value="Admin">Master Admin</option>
-                    </select>
-                    <select name="team_id" class="w-full bg-black border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all appearance-none">
-                        <option value="">No Team Assigned</option>
-                        {% for team in teams %}
-                        <option value="{{ team.id }}">{{ team.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <button type="submit" class="w-full bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2 mt-2 transition-colors text-sm">Create Account</button>
-            </form>
+            </div>
         </div>
     </div>
 
-    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 lg:col-span-2 shadow-sm">
+    <!-- Deploy Team Modal -->
+    <div id="teamModal" class="opacity-0 pointer-events-none fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+        <div id="teamModalContent" class="bg-[#0a0a0a] border border-zinc-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden relative transform scale-95 transition-transform duration-300 ease-out" onclick="event.stopPropagation()">
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center bg-black/50">
+                <h3 class="text-sm font-medium text-zinc-200">Deploy New Team</h3>
+                <button onclick="closeTeamModal()" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-5 bg-black">
+                <form id="addTeamForm" action="/admin/team" method="POST" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Team Name</label>
+                        <input type="text" name="name" placeholder="Team Name" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono appearance-none cursor-pointer pr-8">
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Chat Provider</label>
+                                <div class="relative"><select name="chat_provider" id="chat_provider" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="discord">Discord</option>
+                                    <option value="slack">Slack</option>
+                                    <option value="teams">MS Teams</option>
+                                </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Chat Webhook URL</label>
+                                <input type="url" name="chat_webhook_url" id="chat_webhook_url" placeholder="https://..." required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-4 mb-4">
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 block">VCS Provider</label>
+                                <div class="relative"><select name="vcs_provider" id="vcs_provider" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="github">GitHub</option>
+                                </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 block">PM Provider</label>
+                                <div class="relative"><select name="pm_provider" id="pm_provider" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="jira">Jira</option>
+                                </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitTeamBtn" class="w-full bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2.5 mt-2 transition-colors text-sm shadow-lg flex justify-center items-center gap-2">
+                        Create Workspace
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Team Modals dynamically generated -->
+    {% for team in teams %}
+    <div id="manageTeamModal-{{team.id}}" class="opacity-0 pointer-events-none fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out" onclick="closeManageTeamModal('{{team.id}}')">
+        <div id="manageTeamModalContent-{{team.id}}" class="bg-[#0a0a0a] border border-zinc-800 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden relative transform scale-95 transition-transform duration-300 ease-out custom-scrollbar max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center bg-[#0a0a0a] sticky top-0 z-10 backdrop-blur-md">
+                <h3 class="text-base font-medium text-zinc-100 flex items-center gap-2">
+                    Manage Team: {{ team.name }}
+                </h3>
+                <button onclick="closeManageTeamModal('{{team.id}}')" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 bg-black space-y-8">
+                <!-- Top details: Configurations -->
+                <div>
+                    <h4 class="text-sm font-semibold text-zinc-200 mb-4 pb-2 border-b border-zinc-800/60">Configuration</h4>
+                    <form action="/admin/team/update/{{team.id}}" method="POST" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Team Name</label>
+                                <input type="text" name="name" value="{{ team.name }}" required class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono appearance-none cursor-pointer pr-8">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Team Leader</label>
+                                <div class="relative"><select name="leader_id" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="">No Leader</option>
+                                    {% for u in users if u.team_id == team.id %}
+                                    <option value="{{ u.id }}" {% if u.role in ['Leader', 'Team Leader'] %}selected{% endif %}>{{ u.full_name or u.username }}</option>
+                                    {% endfor %}
+                                </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Chat Provider</label>
+                                <div class="relative"><select name="chat_provider" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                                    <option value="discord" {% if team.chat_provider == 'discord' %}selected{% endif %}>Discord</option>
+                                    <option value="slack" {% if team.chat_provider == 'slack' %}selected{% endif %}>Slack</option>
+                                    <option value="teams" {% if team.chat_provider == 'teams' %}selected{% endif %}>MS Teams</option>
+                                </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Chat Webhook URL</label>
+                                <input type="url" name="chat_webhook_url" value="{{ team.chat_webhook_url or '' }}" class="w-full bg-[#0a0a0a] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all appearance-none cursor-pointer pr-8">
+                            </div>
+                        </div>
+                        </div>
+                        <button type="submit" class="bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-zinc-100 font-medium rounded-md px-4 py-2 transition-colors text-sm w-full md:w-auto">Save Team Details</button>
+                    </form>
+                </div>
+
+                <!-- Integrations -->
+                <div>
+                    <h4 class="text-sm font-semibold text-zinc-200 mb-4 pb-2 border-b border-zinc-800/60">Integrations (Secrets)</h4>
+                    <div class="space-y-3">
+                        <div class="bg-[#0a0a0a] rounded-lg border border-zinc-800 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <p class="text-xs text-zinc-500 uppercase font-medium mb-1">GitHub Secret</p>
+                                <p class="text-sm font-mono text-zinc-300 break-all select-all">{{ team.vcs_secret or 'Not Generated' }}</p>
+                            </div>
+                            <form action="/admin/team/regenerate-vcs-secret/{{team.id}}" method="POST" onsubmit="return confirm('Regenerating will break existing webhooks until you update them in GitHub. Proceed?');">
+                                <button type="submit" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 px-3 py-2 rounded-md transition-colors whitespace-nowrap">Regenerate Secret</button>
+                            </form>
+                        </div>
+                        <div class="bg-[#0a0a0a] rounded-lg border border-zinc-800 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <p class="text-xs text-zinc-500 uppercase font-medium mb-1">Jira Secret</p>
+                                <p class="text-sm font-mono text-zinc-300 break-all select-all">{{ team.pm_secret or 'Not Generated' }}</p>
+                            </div>
+                            <form action="/admin/team/regenerate-pm-secret/{{team.id}}" method="POST" onsubmit="return confirm('Regenerating will break existing webhooks until you update them in Jira. Proceed?');">
+                                <button type="submit" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 px-3 py-2 rounded-md transition-colors whitespace-nowrap">Regenerate Secret</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Member Management -->
+                <div>
+                    <h4 class="text-sm font-semibold text-zinc-200 mb-4 pb-2 border-b border-zinc-800/60 flex justify-between items-center">
+                        <span>Members</span>
+                        <form action="/admin/team/delete/{{ team.id }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this team and all its data?');">
+                            <button type="submit" class="text-[11px] font-medium text-red-400 hover:text-red-300 px-2 py-1 transition-colors">Delete Team</button>
+                        </form>
+                    </h4>
+                    <ul class="space-y-2">
+                        {% set ns = namespace(found=false) %}
+                        {% for u in users if u.team_id == team.id %}
+                        {% set ns.found = true %}
+                        <li class="bg-[#0a0a0a] border border-zinc-800/50 rounded-md p-3 flex justify-between items-center group/item hover:border-zinc-700 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs text-zinc-400 font-medium uppercase">
+                                    {% set names = (u.full_name or '').split() %}
+                                    {{ names[0][0] ~ names[-1][0] if names|length > 1 else names[0][0] if names else u.username[:2] }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-medium text-zinc-200">{{ u.full_name or u.username }}</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-400">{{ u.role }}</span>
+                                    </div>
+                                    <span class="text-[10px] text-zinc-500 mt-0.5">{{ u.email or 'No email' }}</span>
+                                </div>
+                            </div>
+                            {% if user.id != u.id %}
+                            <form action="/admin/user/delete/{{ u.id }}" method="POST" onsubmit="return confirm('Revoke user access?');">
+                                <button type="submit" class="text-xs text-zinc-500 hover:text-red-400 px-2 py-1 rounded transition-colors opacity-0 group-[.group\/item]:opacity-100">Remove</button>
+                            </form>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                        {% if not ns.found %}
+                        <div class="p-3 bg-[#0a0a0a] border border-dashed border-zinc-800 rounded-md text-center text-xs text-zinc-500">
+                            No team members configured here yet.
+                        </div>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        const provisionModal = document.getElementById('provisionModal');
+        const provisionModalContent = document.getElementById('provisionModalContent');
+        const teamModal = document.getElementById('teamModal');
+        const teamModalContent = document.getElementById('teamModalContent');
+        const importModal = document.getElementById('importModal');
+        const importModalContent = document.getElementById('importModalContent');
+
+        function openImportModal() {
+            if(importModal && importModalContent) {
+                importModal.classList.remove('opacity-0', 'pointer-events-none');
+                importModalContent.classList.remove('scale-95');
+                importModalContent.classList.add('scale-100');
+            }
+        }
+
+        function closeImportModal() {
+            if(importModal && importModalContent) {
+                importModal.classList.add('opacity-0', 'pointer-events-none');
+                importModalContent.classList.remove('scale-100');
+                importModalContent.classList.add('scale-95');
+            }
+        }
+
+        if(importModal) {
+            importModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeImportModal();
+                }
+            });
+        }
+
+        function openProvisionModal() {
+            provisionModal.classList.remove('opacity-0', 'pointer-events-none');
+            provisionModalContent.classList.remove('scale-95');
+            provisionModalContent.classList.add('scale-100');
+        }
+
+        function closeProvisionModal() {
+            provisionModal.classList.add('opacity-0', 'pointer-events-none');
+            provisionModalContent.classList.remove('scale-100');
+            provisionModalContent.classList.add('scale-95');
+        }
+
+        provisionModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProvisionModal();
+            }
+        });
+
+        function openTeamModal() {
+            teamModal.classList.remove('opacity-0', 'pointer-events-none');
+            teamModalContent.classList.remove('scale-95');
+            teamModalContent.classList.add('scale-100');
+        }
+
+        function closeTeamModal() {
+            teamModal.classList.add('opacity-0', 'pointer-events-none');
+            teamModalContent.classList.remove('scale-100');
+            teamModalContent.classList.add('scale-95');
+        }
+
+        teamModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTeamModal();
+            }
+        });
+        
+        function openManageTeamModal(teamId) {
+            const m = document.getElementById('manageTeamModal-' + teamId);
+            const mc = document.getElementById('manageTeamModalContent-' + teamId);
+            if(m && mc) {
+                m.classList.remove('opacity-0', 'pointer-events-none');
+                mc.classList.remove('scale-95');
+                mc.classList.add('scale-100');
+            }
+        }
+
+        function closeManageTeamModal(teamId) {
+            const m = document.getElementById('manageTeamModal-' + teamId);
+            const mc = document.getElementById('manageTeamModalContent-' + teamId);
+            if(m && mc) {
+                m.classList.add('opacity-0', 'pointer-events-none');
+                mc.classList.remove('scale-100');
+                mc.classList.add('scale-95');
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (!provisionModal.classList.contains('opacity-0')) closeProvisionModal();
+                if (!teamModal.classList.contains('opacity-0')) closeTeamModal();
+                
+                // close any potentially open manage team modals
+                document.querySelectorAll('[id^=manageTeamModal-]').forEach(modal => {
+                    if(!modal.classList.contains('opacity-0')) {
+                        const id = modal.id.replace('manageTeamModal-', '');
+                        closeManageTeamModal(id);
+                    }
+                });
+            }
+        });
+
+        // Search logic for Teams
+        document.getElementById('teamSearchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.active-team-item').forEach(el => {
+                const text = el.textContent.toLowerCase();
+                el.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
+
+        // Submit Team + Webhook Test
+        const addTeamForm = document.getElementById('addTeamForm');
+        addTeamForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitTeamBtn');
+            const url = document.getElementById('chat_webhook_url').value;
+            const provider = document.getElementById('chat_provider').value;
+            const originalHTML = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Testing Webhook...</span>';
+            
+            try {
+                const res = await fetch('/admin/team/test-webhook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook_url: url })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (confirm('A test message was sent to your Chat Tool. Did you receive it successfully?')) {
+                        HTMLFormElement.prototype.submit.call(addTeamForm);
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                    }
+                } else {
+                    alert('Failed to send webhook: ' + (data.error || 'Unknown error'));
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                }
+            } catch (err) {
+                alert('Error communicating with server to test webhook.');
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        });
+    </script>
+<div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6  shadow-sm">
         <h2 class="text-lg font-semibold mb-5 text-zinc-100 border-b border-zinc-800 pb-3 flex items-center gap-2">
             <svg class="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             Global Enterprise Settings
@@ -122,10 +578,10 @@
         <div class="bg-black border border-zinc-800 rounded-lg p-5 flex flex-col md:flex-row gap-6 items-start md:items-center">
             <div class="flex-1">
                 <h3 class="text-sm font-medium text-zinc-200 mb-1">Gemini API Key</h3>
-                <p class="text-xs text-zinc-500">Update your primary Google Generative AI key. This powers the global collision detection and daily reports for all child teams.</p>
+                <p class="text-xs text-zinc-500">Update your primary Google Generative AI key. This powers the daily reports for all child teams.</p>
             </div>
             <form action="/admin/company/key" method="POST" class="w-full md:w-auto flex gap-3">
-                <input type="password" name="gemini_api_key" placeholder="AIzaSy..." value="{{ company.gemini_api_key if company and company.gemini_api_key and company.gemini_api_key != '1234' else '' }}" required class="w-full md:w-64 bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all font-mono">
+                <input type="password" name="gemini_api_key" placeholder="AIzaSy..." value="{{ company.gemini_api_key if company and company.gemini_api_key and company.gemini_api_key != '1234' else '' }}" required class="w-full md:w-64 bg-transparent border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all font-mono appearance-none cursor-pointer pr-8">
                 <button type="submit" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 font-medium rounded-md px-4 py-2 transition-colors text-sm whitespace-nowrap">Save Key</button>
             </form>
         </div>

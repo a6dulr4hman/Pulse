@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col items-center justify-center relative">
+    <div class="absolute w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+    <div class="w-full max-w-[400px] bg-[#0a0a0a]/80 backdrop-blur-2xl border border-zinc-800/80 p-8 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative z-10 transition-all">
+        
+        <div class="flex flex-col items-center mb-8">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-200 to-indigo-500 flex items-center justify-center text-black shadow-lg mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-semibold tracking-tight text-zinc-100">Action Required</h1>
+            <p class="text-sm text-zinc-400 mt-1.5 text-center">Open your Authenticator app and enter the 6-digit code.</p>
+        </div>
+
+        {% if error %}
+        <div class="mb-5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-3 py-2 rounded-md flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form action="/login/2fa" method="POST" class="space-y-4">
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="flex justify-center my-6">
+                <input type="text" id="code" name="code" placeholder="000000" maxlength="6" autocomplete="one-time-code" autofocus required 
+                    class="w-full text-center tracking-[0.5em] text-2xl bg-black/50 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:-translate-y-px focus:border-zinc-100 focus:ring-1 focus:ring-zinc-100 focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all font-mono">
+            </div>
+            
+            <button type="submit" 
+                class="w-full bg-zinc-100 text-black hover:bg-zinc-300 font-medium rounded-md px-4 py-2.5 mt-2 transition-colors text-sm shadow-lg flex justify-center items-center gap-2">
+                Verify
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </form>
+
+        <div class="mt-8 pt-5 border-t border-zinc-800/60 text-center">
+            <a href="/login" class="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors">
+                &larr; Return to Sign In
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

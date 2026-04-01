@@ -1,29 +1,34 @@
 # Pulse AI
 ## Made for the Global Build Challenge (Powered by Notch)
 
-Pulse AI is an automated, AI-driven technical lead agent built for enterprise development teams. It monitors incoming webhooks and activities from Git and project management platforms, passing the data through Google's Gemini LLMs to detect and prevent architectural overlaps, dependency collisions, and major code regressions before they occur. 
+Pulse AI is an automated, AI-driven technical lead agent built for enterprise development teams. It monitors incoming webhooks and activities from Git and project management platforms, passing the data through Google's Gemini LLMs to generate reports.
 
 ## Key Features
 
-* Automated Dependency Radar
-  Real-time analysis of code commits and Jira movements to proactively identify conflicts across disparate engineering teams.
-  
-* Role-Based Access Control
-  Secure boundaries providing tiered dashboards:
-  - Admin (System configuration, company-wide management)
-  - Team Leader (Team configuration, Git/Jira/Discord token generation)
-  - Member (View-only operational metrics)
+* Modular Extension Architecture
+  Fully decoupled integration system allowing drop-in plugins for various platforms:
+  - Code Integrations (GitHub, GitLab via generic VCS extensions)
+  - Task Management (Jira, Trello, YouTrack via PM extensions)
+  - Chat Alerts (Discord, Slack, MS Teams via Chat extensions)
 
-* System Integrations
-  - GitHub Webhooks (Commit monitoring)
-  - Jira Webhooks (Workflow transitions and issue assignments)
-  - Discord Alert Webhook (Instant alerts on critical architectural breaks)
+* Next-Generation Security
+  - Passkey Support: Device-native biometric authentication (TouchID, FaceID, YubiKey) securely built-in.
+  - Multi-Factor Authentication: Standard 6-digit rolling authenticator app (TOTP) workflows.
+  - Granular Role-Based Access Control (Admin, Leader, Member).
+
+* Advanced Admin Console
+  - Centralized, unified dynamic "Teams" manager with global inline search and filtering.
+  - Rapid Data Import: Custom drag-and-drop zones for bulk onboarding users and teams via CSV and JSON payloads.
+  - Real-time webhook connection testing before saving infrastructure configurations.
 
 * Auto-Generated Reporting
   Generates daily standup executive summaries and exports them as clean PDF reports formatted specifically for engineering leadership.
 
-* Modern Glassmorphism UI
-  A strictly tailored dark-theme dashboard powered by TailwindCSS and Jinja2 templates, offering a frictionless developer experience.
+* Beautiful Animated UI
+  A strictly tailored dark-theme single-page-feel dashboard featuring:
+  - Smooth page fades, seamless modal transitions, and dynamic glowing inputs.
+  - Intuitive 2-Step interactive Setup Wizard.
+  - Interactive profile and security setting layouts leveraging sleek navigation.
 
 ## Technology Stack
 
@@ -63,4 +68,3 @@ Pulse AI is an automated, AI-driven technical lead agent built for enterprise de
 Pulse AI intercepts webhooks entirely asynchronously. When a commit or Jira payload is received:
 1. The payload is standardized and stored in the ActivityLog.
 2. A Starlette BackgroundTask spins up a context-aware prompt parsing the current payload against the team's last 24 hours of logs.
-3. If an architectural risk is identified, a "Conflict" entity is generated, flagging red in the Dependency Radar, and immediately pushing an alert sequence to the specified Discord Webhook URL.

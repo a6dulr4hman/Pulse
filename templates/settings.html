@@ -1,99 +1,417 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mb-8 relative z-10">
-    <h1 class="text-3xl font-semibold tracking-tight text-zinc-100">Account Settings</h1>
-    <p class="text-sm text-zinc-400 mt-1">Manage your profile, security, and preferences.</p>
-</div>
+<div class="max-w-4xl mx-auto py-8">
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold tracking-tight text-white mb-2">Account Settings</h1>
+        <p class="text-zinc-400">Manage your profile, preferences, and security settings.</p>
+    </div>
 
-<div class="flex flex-col md:flex-row gap-8 relative z-10">
-    
-    <aside class="w-full md:w-64 shrink-0">
-        <nav class="space-y-1">
-            <a href="#" class="flex items-center gap-3 bg-zinc-900 text-zinc-100 px-3 py-2.5 rounded-md text-sm font-medium transition-colors">
-                <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                Profile & Security
-            </a>
-            <a href="{{ '/admin/dashboard' if user.role == 'Admin' else '/leader/dashboard' if user.role == 'Team Leader' else '/member/dashboard' }}" class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/50 px-3 py-2.5 rounded-md text-sm font-medium transition-colors">
-                <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Back to Dashboard
-            </a>
-        </nav>
-    </aside>
-
-    <div class="flex-1 space-y-6">
-        
-        {% if error %}
-            <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg flex items-center gap-2 shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                {{ error }}
-            </div>
-        {% endif %}
-        {% if success %}
-            <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm px-4 py-3 rounded-lg flex items-center gap-2 shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                {{ success }}
-            </div>
-        {% endif %}
-
-        <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
-            <h2 class="text-base font-semibold text-zinc-200 mb-5">Profile Information</h2>
-            
-            <div class="flex items-center gap-5 mb-6">
-                <div class="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl font-medium text-zinc-300 uppercase shadow-inner">
-                    {{ user.username[:2] }}
-                </div>
-                <div>
-                    <h3 class="text-lg font-medium text-zinc-100">{{ user.full_name or user.username }}</h3>
-                    <p class="text-sm text-zinc-500 flex items-center gap-2 mt-0.5">
-                        <span class="bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-semibold">{{ user.role }}</span>
-                        {% if user.team_id %}Team ID: {{ user.team_id }}{% endif %}
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-5 border-t border-zinc-800/60">
-                <div>
-                    <label class="block text-xs font-medium text-zinc-500 mb-1">Username</label>
-                    <div class="text-sm text-zinc-300 bg-black border border-zinc-800/60 rounded-md px-3 py-2 cursor-not-allowed opacity-80">
-                        {{ user.username }}
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-zinc-500 mb-1">Email Address</label>
-                    <div class="text-sm text-zinc-300 bg-black border border-zinc-800/60 rounded-md px-3 py-2 cursor-not-allowed opacity-80">
-                        {{ user.email or 'Not provided' }}
-                    </div>
-                </div>
-            </div>
-            <p class="text-[11px] text-zinc-500 mt-4">Profile details are managed by your workspace administrator.</p>
+    <div class="flex flex-col md:flex-row gap-8">
+        <!-- Sidebar Navigation -->
+        <div class="w-full md:w-64 shrink-0">
+            <nav class="flex flex-col space-y-1 sticky top-24" aria-label="Settings Navigation">
+                <a href="#profile" id="nav-profile" class="text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-colors text-white hover:bg-white/10">
+                    Profile Information
+                </a>
+                <a href="#security" id="nav-security" class="text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-colors text-white hover:bg-white/10">
+                    Security & Passkeys
+                </a>
+            </nav>
         </div>
 
-        <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
-            <h2 class="text-base font-semibold text-zinc-200 mb-1">Change Password</h2>
-            <p class="text-xs text-zinc-500 mb-5">Update your password associated with your account.</p>
+        <!-- Main Content Area -->
+        <div class="flex-1 space-y-12 pb-12">
             
-            <form action="/settings/password" method="POST" class="max-w-md space-y-4">
-                <div class="space-y-1.5">
-                    <label for="current_password" class="block text-xs font-medium text-zinc-400">Current Password</label>
-                    <input type="password" id="current_password" name="current_password" required 
-                        class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono">
+            <!-- PROFILE TAB -->
+            <div id="profile" class="space-y-6 scroll-mt-8">
+                <!-- Profile Settings logic from context... -->
+                <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <h2 class="text-lg font-medium text-white mb-4">Profile Details</h2>
+                    
+                    {% if request.query_params.get('success') == 'profile' %}
+                    <div class="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg text-sm flex items-center gap-3">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Profile updated successfully.
+                    </div>
+                    {% endif %}
+                    
+                    <form action="/settings/profile" method="POST" class="space-y-5">
+                        <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                            <label for="username" class="block text-xs font-medium text-zinc-400">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" readonly disabled 
+                                class="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-md px-3 py-2.5 text-sm text-zinc-500 cursor-not-allowed font-mono">
+                            <p class="text-[11px] text-zinc-500 mt-1">Username cannot be changed.</p>
+                        </div>
+                        
+                        <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                            <label for="full_name" class="block text-xs font-medium text-zinc-400">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" value="{{ user.full_name or '' }}" required 
+                                class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all">
+                        </div>
+                        
+                        <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                            <label for="email" class="block text-xs font-medium text-zinc-400">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required 
+                                class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all">
+                        </div>
+                        
+                        <div class="pt-2">
+                            <button type="submit" class="bg-white text-black text-sm font-medium px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                                Save Profile
+                            </button>
+                        </div>
+                    </form>
                 </div>
+            </div>
+
+
+            <!-- SECURITY TAB -->
+            <div id="security" class="space-y-6 pt-8 border-t border-zinc-800/50 scroll-mt-24">
                 
-                <div class="space-y-1.5 pt-2">
-                    <label for="new_password" class="block text-xs font-medium text-zinc-400">New Password</label>
-                    <input type="password" id="new_password" name="new_password" required 
-                        class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-mono">
+                {% if request.query_params.get('success') == 'password' %}
+                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg text-sm flex items-center gap-3">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Password changed successfully.
                 </div>
+                {% endif %}
                 
-                <div class="pt-2">
-                    <button type="submit" class="bg-zinc-100 hover:bg-zinc-300 text-black font-medium rounded-md px-4 py-2 transition-colors text-sm shadow-sm">
-                        Update Password
+                {% if request.query_params.get('error') %}
+                <div class="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg text-sm flex items-center gap-3">
+                    <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ request.query_params.get('error') }}
+                </div>
+                {% endif %}
+
+                <!-- Password Container -->
+                <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-white mb-1">Account Password</h2>
+                        <p class="text-sm text-zinc-400">Ensure your account is using a long, random password to stay secure.</p>
+                    </div>
+                    <button onclick="openPasswordModal()" class="bg-white/10 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/20 transition-colors border border-white/10 shrink-0">
+                        Change Password
                     </button>
                 </div>
-            </form>
-        </div>
 
+                <!-- 2FA Section -->
+                <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 class="text-lg font-medium text-white mb-1">Two-Factor Authentication (TOTP)</h2>
+                            <p class="text-sm text-zinc-400">Add an extra layer of security to your account with an Authenticator App.</p>
+                        </div>
+                        {% if user.totp_enabled %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                Enabled
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400 border border-zinc-700">
+                                Disabled
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user.totp_enabled %}
+                    <form action="/settings/2fa/disable" method="POST">
+                        <button type="submit" class="text-sm text-red-500 hover:text-red-400 font-medium transition-colors">
+                            Disable 2FA App
+                        </button>
+                    </form>
+                    {% else %}
+                    <form action="/settings/2fa/setup" method="POST">
+                        <button type="submit" class="bg-white/10 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/20 transition-colors border border-white/10">
+                            Setup Authenticator App
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <!-- Passkeys Section -->
+                <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-lg font-medium text-white mb-1">Passkeys</h2>
+                            <p class="text-sm text-zinc-400">Sign in securely using your fingerprint, face ID, or security key.</p>
+                        </div>
+                            <button onclick="openPasskeyModal()" class="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer">
+                                Add a Passkey
+                            </button>
+                        </div>
+                    {% if passkeys %}
+                    <div class="space-y-3">
+                        {% for pk in passkeys %}
+                        <div class="flex justify-between items-center p-4 border border-zinc-800 rounded-lg bg-black/30">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-indigo-500/10 rounded-md">
+                                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-white">{{ pk.name or 'Passkey' }}</p>
+                                    <p class="text-xs text-zinc-500">Added {{ pk.created_at.strftime('%b %d, %Y') }}</p>
+                                </div>
+                            </div>
+                            <form action="/settings/passkeys/delete/{{ pk.id }}" method="POST" onsubmit="return confirm('Remove this passkey?');">
+                                <button type="submit" class="text-xs text-red-500 hover:text-red-400 font-medium px-3 py-1.5 rounded-md hover:bg-red-500/10 transition-colors">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-6 border border-dashed border-zinc-800 rounded-lg bg-black/20">
+                        <p class="text-sm text-zinc-500">No passkeys have been added yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
     </div>
 </div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="passwordModal" class="opacity-0 pointer-events-none fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out" onclick="closePasswordModal()">
+    <div id="passwordModalContent" class="bg-[#0a0a0a] border border-zinc-800 rounded-xl shadow-2xl w-[400px] overflow-hidden text-left relative transform scale-95 transition-transform duration-300 ease-out p-6" onclick="event.stopPropagation()">
+        <h3 class="text-lg font-medium text-white mb-2">Change Password</h3>
+        <p class="text-sm text-zinc-400 mb-6">Update your account password. You will be signed out of other devices.</p>
+        
+        <form action="/settings/password" method="POST" class="space-y-4">
+            <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                <label for="current_password" class="block text-xs font-medium text-zinc-400">Current Password</label>
+                <input type="password" id="current_password" name="current_password" required 
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all font-mono">
+            </div>
+            
+            <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                <label for="new_password" class="block text-xs font-medium text-zinc-400">New Password</label>
+                <input type="password" id="new_password" name="new_password" required 
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all font-mono">
+            </div>
+            
+            <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                <label for="confirm_password" class="block text-xs font-medium text-zinc-400">Confirm New Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required 
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all font-mono">
+            </div>
+            
+            <div class="pt-4 flex gap-3 justify-end">
+                <button type="button" onclick="closePasswordModal()" class="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-white text-black text-sm font-medium px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                    Update Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2FA QR MODAL -->
+{% if qr_code %}
+<dialog id="qrModal" class="bg-transparent m-auto p-0 backdrop:bg-black/80 backdrop:backdrop-blur-sm" open>
+    <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl shadow-2xl w-[400px] overflow-hidden text-left relative transform transition-all p-6">
+        <h3 class="text-lg font-medium text-white mb-2">Setup Authenticator App</h3>
+        <p class="text-sm text-zinc-400 mb-6">Scan the QR code with your authenticator app and enter the 6-digit code below.</p>
+        
+        <div class="flex justify-center mb-6 bg-white p-4 rounded-lg w-max mx-auto shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+            <img src="{{ qr_code }}" alt="QR Code for 2FA" class="w-48 h-48">
+        </div>
+        <p class="text-xs text-center text-zinc-500 mb-6 font-mono bg-black/50 border border-zinc-800 p-2 rounded">Secret: {{ secret }}</p>
+        
+        <form action="/settings/2fa/verify" method="POST" class="space-y-4">
+            <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                <label for="code" class="block text-xs font-medium text-zinc-400">6-Digit Code</label>
+                <input type="text" id="code" name="code" required autocomplete="off" pattern="[0-9]{6}" maxlength="6" placeholder="000000"
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-zinc-100 placeholder:text-zinc-700 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all font-mono text-center tracking-[0.5em] text-lg">
+            </div>
+            
+            <div class="pt-4 flex gap-3 justify-end items-center">
+                <a href="/settings" class="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-white text-black text-sm font-medium px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                    Verify & Enable
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+{% endif %}
+
+<!-- PASSKEY NAME MODAL -->
+<div id="passkeyModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div id="passkeyModalBackdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closePasskeyModal()"></div>
+    <div id="passkeyModalContent" class="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-2xl z-10 w-[400px] relative transform scale-95 opacity-0 transition-all duration-300">
+        <h3 class="text-lg font-medium text-white mb-2">Name Your Passkey</h3>
+        <p class="text-sm text-zinc-400 mb-6">Give this device a recognizable name (e.g. "Macbook Air", "My Phone").</p>
+        
+        <div class="space-y-4">
+            <div class="space-y-1.5 focus-within:relative focus-within:z-10 transition-all duration-300">
+                <label for="passkeyNameInput" class="block text-xs font-medium text-zinc-400">Device Name</label>
+                <input type="text" id="passkeyNameInput" placeholder="My Device" required 
+                    class="w-full bg-black/50 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white focus:shadow-[0_0_14px_rgba(255,255,255,0.2)] transition-all">
+            </div>
+            
+            <div class="pt-4 flex gap-3 justify-end items-center">
+                <button type="button" onclick="closePasskeyModal()" class="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+                    Cancel
+                </button>
+                <button type="button" onclick="startPasskeyRegistrationFlow()" class="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
+                    Continue Setup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openPasskeyModal() {
+        const modal = document.getElementById('passkeyModal');
+        const backdrop = document.getElementById('passkeyModalBackdrop');
+        const content = document.getElementById('passkeyModalContent');
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        // Trigger animations
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            content.classList.remove('opacity-0', 'scale-95');
+        }, 10);
+    }
+
+    function closePasskeyModal() {
+        const modal = document.getElementById('passkeyModal');
+        const backdrop = document.getElementById('passkeyModalBackdrop');
+        const content = document.getElementById('passkeyModalContent');
+        
+        // Reverse animations
+        backdrop.classList.add('opacity-0');
+        content.classList.add('opacity-0', 'scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('passkeyNameInput').value = '';
+        }, 300);
+    }
+
+    function bufferToBase64url(buffer) {
+        const bytes = new Uint8Array(buffer);
+        let str = '';
+        for (const charCode of bytes) {
+            str += String.fromCharCode(charCode);
+        }
+        const base64String = window.btoa(str);
+        return base64String.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+
+    function base64urlToBuffer(base64string) {
+        const padding = '==='.slice((base64string.length + 3) % 4);
+        const base64 = (base64string + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const buffer = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            buffer[i] = rawData.charCodeAt(i);
+        }
+        return buffer.buffer;
+    }
+
+    async function startPasskeyRegistrationFlow() {
+        const nameInput = document.getElementById('passkeyNameInput');
+        if (!nameInput.value.trim()) {
+            nameInput.focus();
+            return;
+        }
+        
+        const passkeyName = nameInput.value.trim();
+        closePasskeyModal();
+        
+        try {
+            const resp = await fetch('/webauthn/register/begin');
+            if(!resp.ok) {
+                alert("Failed to begin passkey logic on server.");
+                return;
+            }
+            
+            const options = await resp.json();
+            
+            // Convert to ArrayBuffers
+            options.challenge = base64urlToBuffer(options.challenge);
+            options.user.id = base64urlToBuffer(options.user.id);
+            if (options.excludeCredentials) {
+                for (let cred of options.excludeCredentials) {
+                    cred.id = base64urlToBuffer(cred.id);
+                }
+            }
+
+            let credential;
+            try {
+                credential = await navigator.credentials.create({ publicKey: options });
+            } catch (err) {
+                console.error(err);
+                return; // User likely cancelled
+            }
+
+            const regData = {
+                name: passkeyName, // Pass the name dynamically
+                id: credential.id,
+                rawId: bufferToBase64url(credential.rawId),
+                type: credential.type,
+                response: {
+                    attestationObject: bufferToBase64url(credential.response.attestationObject),
+                    clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
+                }
+            };
+
+            const completeResp = await fetch('/webauthn/register/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(regData)
+            });
+
+            if (completeResp.ok) {
+                window.location.reload();
+            } else {
+                const errData = await completeResp.json();
+                alert('Registration failed: ' + (errData.detail || 'Unknown error'));
+            }
+
+        } catch (e) {
+            console.error(e);
+            alert("Unexpected error talking to python WebAuthn endpoints.");
+        }
+    }
+
+    function openPasswordModal() {
+        const modal = document.getElementById('passwordModal');
+        const content = document.getElementById('passwordModalContent');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100');
+        setTimeout(() => {
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closePasswordModal() {
+        const modal = document.getElementById('passwordModal');
+        const content = document.getElementById('passwordModalContent');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+</script>
 {% endblock %}
