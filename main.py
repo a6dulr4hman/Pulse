@@ -297,7 +297,7 @@ async def setup_post(request: Request, company_name: str = Form(...), gemini_key
         logger.info(f"Company {company_name} created successfully.")
         
         hashed = bcrypt.hashpw(admin_pass[:72].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        admin = User(username=admin_user, full_name=admin_full_name, password_hash=hashed, role="Admin", company_id=company.id)
+        admin = User(username=admin_user, email=admin_user, full_name=admin_full_name, password_hash=hashed, role="Admin", company_id=company.id)
         db.add(admin)
         db.commit()
         logger.info(f"Admin user {admin_user} created successfully. Redirecting to /login.")
@@ -316,13 +316,18 @@ async def login_get(request: Request, next: str = ""):
 
 @app.post("/login")
 async def login_post(request: Request, username: str = Form(...), password: str = Form(...), next: str = Form(default=""), db: Session = Depends(get_db)):
-    logger.info(f"Processing /login POST for username: {username}")
-    user = db.query(User).filter(User.username == username).first()
+    logger.info(f"Processing /login POST for username/email: {username}")
+    user = db.query(User).filter((User.username == username) | (User.email == username)).first()
     
     if not user or not bcrypt.checkpw(password[:72].encode('utf-8'), user.password_hash.encode('utf-8')):
-        logger.warning(f"Login failed for username: {username}")
+        logger.warning(f"Login failed for username/email: {username}")
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Invalid credentials", "next": next})
         
+    # Enforce strictly email-only login for Admins
+    if user.role == "Admin" and user.username == username and user.email != username:
+        logger.warning(f"Admin attempt to log in with username {username}. Rejected.")
+        return templates.TemplateResponse(request=request, name="login.html", context={"error": "Admins must log in using an email address", "next": next})
+
     logger.info(f"Login password successful for {username}.")
     if user.totp_enabled:
         request.session["pending_user_id"] = user.id
@@ -686,7 +691,7 @@ def delete_passkey(pk_id: int, request: Request, db: Session = Depends(get_db)):
 @app.get("/webauthn/register/begin")
 def webauthn_register_begin(request: Request, db: Session = Depends(get_db)):
     user = login_required(request, db)
-    host = request.headers.get('host', 'localhost:8000')
+    host = request.headers.get('x-forwarded-host', request.headers.get('host', 'localhost:8000'))
     domain = host.split(':')[0]
     
     existing = db.query(Passkey).filter(Passkey.user_id == user.id).all()
@@ -712,7 +717,7 @@ def webauthn_register_begin(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/webauthn/authenticate/begin")
 def webauthn_authenticate_begin(request: Request, db: Session = Depends(get_db)):
-    host = request.headers.get('host', 'localhost:8000')
+    host = request.headers.get('x-forwarded-host', request.headers.get('host', 'localhost:8000'))
     domain = host.split(':')[0]
     
     # Create options for any supported credential
@@ -740,8 +745,9 @@ async def webauthn_authenticate_complete(request: Request, db: Session = Depends
     if not pk:
         raise HTTPException(status_code=400, detail="Passkey not recognized or not found")
         
-    host = request.headers.get('host', 'localhost:8000')
-    origin = f"http://{host}"
+    host = request.headers.get('x-forwarded-host', request.headers.get('host', 'localhost:8000'))
+    scheme = request.headers.get('x-forwarded-proto', request.url.scheme)
+    origin = f"{scheme}://{host}"
     domain = host.split(':')[0]
         
     try:
@@ -779,8 +785,9 @@ async def webauthn_register_complete(request: Request, db: Session = Depends(get
     if not challenge:
         raise HTTPException(status_code=400, detail="No challenge found")
         
-    host = request.headers.get('host', 'localhost:8000')
-    origin = f"http://{host}"
+    host = request.headers.get('x-forwarded-host', request.headers.get('host', 'localhost:8000'))
+    scheme = request.headers.get('x-forwarded-proto', request.url.scheme)
+    origin = f"{scheme}://{host}"
     domain = host.split(':')[0]
     
     try:

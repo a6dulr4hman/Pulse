@@ -219,7 +219,7 @@
 
 <!-- 2FA QR MODAL -->
 {% if qr_code %}
-<dialog id="qrModal" class="bg-transparent m-auto p-0 backdrop:bg-black/80 backdrop:backdrop-blur-sm" open>
+<dialog id="qrModal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm w-full h-full flex items-center justify-center" open>
     <div class="bg-[#0a0a0a] border border-zinc-800 rounded-xl shadow-2xl w-[400px] overflow-hidden text-left relative transform transition-all p-6">
         <h3 class="text-lg font-medium text-white mb-2">Setup Authenticator App</h3>
         <p class="text-sm text-zinc-400 mb-6">Scan the QR code with your authenticator app and enter the 6-digit code below.</p>

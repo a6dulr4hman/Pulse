@@ -61,7 +61,7 @@
         }
     </style>
 </head>
-<body class="bg-background text-zinc-300 font-sans antialiased min-h-screen bg-grid selection:bg-zinc-800 selection:text-zinc-50 flex flex-col">
+<body class="bg-background text-zinc-300 font-sans antialiased min-h-screen bg-grid selection:bg-zinc-800 selection:text-zinc-50 relative">
     
     <nav class="sticky top-0 z-50 border-b border-border bg-black/60 backdrop-blur-xl supports-[backdrop-filter]:bg-black/40">
         <div class="max-w-[1200px] mx-auto px-6 h-14 flex justify-between items-center">
@@ -86,11 +86,11 @@
         </div>
     </nav>
 
-    <main id="page-content" class="max-w-[1200px] w-full mx-auto px-6 py-10 opacity-0 transition-opacity duration-500 ease-out flex-grow">
+    <main id="page-content" class="max-w-[1200px] w-full mx-auto px-6 py-10 opacity-0 transition-opacity duration-500 ease-out min-h-[calc(100vh-148px)] relative z-0">
         {% block content %}{% endblock %}
     </main>
     
-    <footer class="border-t border-border mt-auto py-6 bg-black/60 backdrop-blur-xl no-print">
+    <footer class="border-t border-border relative z-10 py-6 bg-black/60 backdrop-blur-xl no-print">
         <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-center gap-3 text-zinc-500">
             <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-zinc-400 hover:text-zinc-200 transition-colors">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M42.8465 22.6378H98.08C98.7521 22.6378 99.0881 22.6378 99.3448 22.507C99.5706 22.392 99.7542 22.2084 99.8692 21.9826C100 21.7259 100 21.3899 100 20.7178V1.92C100 1.24794 100 0.911906 99.8692 0.655211C99.7542 0.429417 99.5706 0.24584 99.3448 0.130792C99.0881 0 98.7521 0 98.08 0H44.7665C44.0944 0 43.7584 0 43.5017 0.130792C43.2759 0.24584 43.0923 0.429417 42.9773 0.655211C42.8465 0.911906 42.8465 1.24794 42.8465 1.92V22.6378L24.7019 4.46493C23.6737 3.43504 23.1595 2.9201 22.718 2.88511C22.335 2.85475 21.9606 3.00967 21.7109 3.30181C21.4232 3.6385 21.4232 4.36617 21.4232 5.82151V27.4606L3.2787 9.28776C2.25042 8.25787 1.73628 7.74293 1.2948 7.70794C0.911747 7.67759 0.537319 7.83251 0.287695 8.12464C0 8.46133 0 9.189 0 10.6443V31.4891C0 31.7822 0 31.9288 0.0330906 32.0668C0.0624287 32.1891 0.110819 32.3061 0.176489 32.4134C0.250559 32.5344 0.354138 32.6382 0.561296 32.8456L21.4232 53.7402V98.08C21.4232 98.7521 21.4232 99.0881 21.554 99.3448C21.6691 99.5706 21.8527 99.7542 22.0784 99.8692C22.3351 100 22.6712 100 23.3432 100H42.2623C42.9344 100 43.2704 100 43.5271 99.8692C43.7529 99.7542 43.9365 99.5706 44.0516 99.3448C44.1823 99.0881 44.1823 98.7521 44.1823 98.08V78.298C44.1823 77.6259 44.1823 77.2899 44.3131 77.0332C44.4282 76.8074 44.6118 76.6238 44.8376 76.5087C45.0943 76.378 45.4303 76.378 46.1023 76.378H98.08C98.7521 76.378 99.0881 76.378 99.3448 76.2472C99.5706 76.1321 99.7542 75.9485 99.8692 75.7227C100 75.466 100 75.13 100 74.458V55.6602C100 54.9881 100 54.6521 99.8692 54.3954C99.7542 54.1696 99.5706 53.986 99.3448 53.871C99.0881 53.7402 98.7521 53.7402 98.08 53.7402H21.4232L21.4232 27.4606L39.5678 45.6335C40.5961 46.6634 41.1102 47.1783 41.5517 47.2133C41.9347 47.2437 42.3092 47.0888 42.5588 46.7966C42.8465 46.4599 42.8465 45.7323 42.8465 44.2769V22.6378Z" fill="currentColor"/>
